@@ -19,8 +19,6 @@ EMACS = Editor MACroS (Offical) 宏编辑器
 还有非官方缩写：
 
 - EMACS = Esc + Meta + Alt + Ctrl + Shift
-- EMACS = Emacs Make All Computer Smarter/Slow
-- ......
 
 简介：[Emacs - 维基百科，自由的百科全书](https://zh.wikipedia.org/wiki/Emacs)
 
