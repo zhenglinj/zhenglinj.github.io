@@ -52,3 +52,9 @@ $jekyll-config-map : {{ config_map }};
 // Custom Layer
 // --------------------------------------------------
 @import "_custom/custom";
+
+.posts-expand .post-body img {
+    margin-left: auto;
+    margin-right: auto;
+    vertical-align:middle;
+}
