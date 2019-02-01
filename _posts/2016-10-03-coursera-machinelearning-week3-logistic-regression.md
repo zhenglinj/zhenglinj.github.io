@@ -32,7 +32,7 @@ $g​$ 代表逻辑函数（**logistic function**)是一个常用的逻辑函数
 
 决策边界(**decision boundary**)的概念。这个概念能更好地帮助我们理解逻辑回归的假设函数在计算什么。
 
-![](/images/ml-images/6590923ac94130a979a8ca1d911b68a3.png)
+![](/images/coursera-machinelearning/6590923ac94130a979a8ca1d911b68a3.png)
 
 在逻辑回归中，我们预测：
 
@@ -54,16 +54,16 @@ ${\theta^{T}}x<0$  时，预测 $y=0$
 
 现在假设我们有一个模型：
 
-![](/images/ml-images/58d098bbb415f2c3797a63bd870c3b8f.png)
+![](/images/coursera-machinelearning/58d098bbb415f2c3797a63bd870c3b8f.png)
 
 并且参数$\theta​$ 是向量[-3 1 1]。 则当$-3+{x_1}+{x_2} \geq 0​$，即${x_1}+{x_2} \geq 3​$时，模型将预测 $y=1​$。
 我们可以绘制直线${x_1}+{x_2} = 3​$，这条线便是我们模型的分界线，将预测为1的区域和预测为 0的区域分隔开。
 
-![](/images/ml-images/f71fb6102e1ceb616314499a027336dc.jpg)
+![](/images/coursera-machinelearning/f71fb6102e1ceb616314499a027336dc.jpg)
 
 假使我们的数据呈现这样的分布情况，怎样的模型才能适合呢？
 
-![](/images/ml-images/197d605aa74bee1556720ea248bab182.jpg)
+![](/images/coursera-machinelearning/197d605aa74bee1556720ea248bab182.jpg)
 
 因为需要用曲线才能分隔 $y=0​$ 的区域和 $y=1​$ 的区域，我们需要二次方特征：${h_\theta}\left( x \right)=g\left( {\theta_0}+{\theta_1}{x_1}+{\theta_{2}}{x_{2}}+{\theta_{3}}x_{1}^{2}+{\theta_{4}}x_{2}^{2} \right)​$是[-1 0 0 1 1]，则我们得到的判定边界恰好是圆点在原点且半径为1的圆形。
 
@@ -73,22 +73,22 @@ ${\theta^{T}}x<0$  时，预测 $y=0$
 
 如何拟合逻辑回归模型的参数$\theta$。具体来说，我要定义用来拟合参数的优化目标或者叫代价函数，这便是监督学习问题中的逻辑回归模型的拟合问题。
 
-![](/images/ml-images/f23eebddd70122ef05baa682f4d6bd0f.png)
+![](/images/coursera-machinelearning/f23eebddd70122ef05baa682f4d6bd0f.png)
 
 对于线性回归模型，我们定义的代价函数是所有模型误差的平方和。理论上来说，我们也可以对逻辑回归模型沿用这个定义，但是问题在于，当我们将${h_\theta}\left( x \right)=\frac{1}{1+{e^{-\theta^{T}x}}}​$带入到这样定义了的代价函数中时，我们得到的代价函数将是一个非凸函数（**non-convexfunction**）。
 
-![](/images/ml-images/8b94e47b7630ac2b0bcb10d204513810.jpg)
+![](/images/coursera-machinelearning/8b94e47b7630ac2b0bcb10d204513810.jpg)
 
 这意味着我们的代价函数有许多局部最小值，这将影响梯度下降算法寻找全局最小值。
 
 线性回归的代价函数为：$J\left( \theta  \right)=\frac{1}{m}\sum\limits_{i=1}^{m}{\frac{1}{2}{{\left( {h_\theta}\left({x}^{\left( i \right)} \right)-{y}^{\left( i \right)} \right)}^{2}}}$ 。
 我们重新定义逻辑回归的代价函数为：$J\left( \theta  \right)=\frac{1}{m}\sum\limits_{i=1}^{m}{{Cost}\left( {h_\theta}\left( {x}^{\left( i \right)} \right),{y}^{\left( i \right)} \right)}$，其中
 
-![](/images/ml-images/54249cb51f0086fa6a805291bf2639f1.png)
+![](/images/coursera-machinelearning/54249cb51f0086fa6a805291bf2639f1.png)
 
 ${h_\theta}\left( x \right)$与 $Cost\left( {h_\theta}\left( x \right),y \right)$之间的关系如下图所示：
 
-![](/images/ml-images/ffa56adcc217800d71afdc3e0df88378.jpg)
+![](/images/coursera-machinelearning/ffa56adcc217800d71afdc3e0df88378.jpg)
 
 这样构建的$Cost\left( {h_\theta}\left( x \right),y \right)​$函数的特点是：当实际的  $y=1​$ 且${h_\theta}\left( x \right)​$也为 1 时误差为 0，当 $y=1​$ 但${h_\theta}\left( x \right)​$不为1时误差随着${h_\theta}\left( x \right)​$变小而变大；当实际的 $y=0​$ 且${h_\theta}\left( x \right)​$也为 0 时代价为 0，当$y=0​$ 但${h_\theta}\left( x \right)​$不为 0时误差随着 ${h_\theta}\left( x \right)​$的变大而变大。
 
@@ -167,7 +167,7 @@ $=\frac{1}{m}\sum\limits_{i=1}^{m}{[{h_\theta}\left( {{x}^{(i)}} \right)-{{y}^{(
 
 这是逻辑回归的代价函数：
 
-![](/images/ml-images/eb69baa91c2fc6e7dd8ebdf6c79a6a6f.png)
+![](/images/coursera-machinelearning/eb69baa91c2fc6e7dd8ebdf6c79a6a6f.png)
 
 这个式子可以合并成：
 
@@ -181,7 +181,7 @@ $J\left( \theta  \right)=-\frac{1}{m}\sum\limits_{i=1}^{m}{[{{y}^{(i)}}\log \lef
 如果我们要最小化这个关于$\theta$的函数值，这就是我们通常用的梯度下降法的模板。
 
 
-![Want ${{\min }_\theta}J(\theta )$：](/images/ml-images/171031235527.png)
+![Want ${{\min }_\theta}J(\theta )$：](/images/coursera-machinelearning/171031235527.png)
 
 如果你计算一下的话，你会得到这个等式：
 ${\theta_j}:={\theta_j}-\alpha \frac{1}{m}\sum\limits_{i=1}^{m}{({h_\theta}({{x}^{(i)}})-{{y}^{(i)}}){x_{j}}^{(i)}}$
@@ -210,7 +210,7 @@ ${h_\theta}\left( x \right)=\frac{1}{1+{{e}^{-{\theta^T}X}}}$
 ### 高级优化
 
 
-![](/images/ml-images/394a1d763425c4ecf12f8f98a392067f.png)
+![](/images/coursera-machinelearning/394a1d763425c4ecf12f8f98a392067f.png)
 
 梯度下降并不是我们可以使用的唯一算法，还有其他一些算法，更高级、更复杂。如果我们能用这些方法来计算代价函数$J\left( \theta  \right)​$和偏导数项$\frac{\partial }{\partial {\theta_j}}J\left( \theta  \right)​$两个项的话，那么这些算法就是为我们优化代价函数的不同方法，**共轭梯度法 BFGS** (**变尺度法**) 和**L-BFGS** (**限制变尺度法**) 就是其中一些更高级的优化算法。
 
@@ -220,19 +220,19 @@ ${h_\theta}\left( x \right)=\frac{1}{1+{{e}^{-{\theta^T}X}}}$
 
 对于之前的一个，二元分类问题，我们的数据看起来可能是像这样：
 
-![](/images/ml-images/68f56679a2113c7857ab9dd2afebcba8.png)
+![](/images/coursera-machinelearning/68f56679a2113c7857ab9dd2afebcba8.png)
 
 对于一个多类分类问题，我们的数据集或许看起来像这样：
 
-![](/images/ml-images/54d7903564b4416305b26f6ff2e13c04.png)
+![](/images/coursera-machinelearning/54d7903564b4416305b26f6ff2e13c04.png)
 
 下面将介绍如何进行一对多的分类工作，有时这个方法也被称为"一对余"方法。
 
-![](/images/ml-images/450a83c67732d254dbac2aeeb8ab910c.png)
+![](/images/coursera-machinelearning/450a83c67732d254dbac2aeeb8ab910c.png)
 
 我们先从用三角形代表的类别1开始，实际上我们可以创建一个，新的"伪"训练集，类型2和类型3定为负类，类型1设定为正类，我们创建一个新的训练集，如下图所示的那样，我们要拟合出一个合适的分类器。
 
-![](/images/ml-images/b72863ce7f85cd491e5b940924ef5a5f.png)
+![](/images/coursera-machinelearning/b72863ce7f85cd491e5b940924ef5a5f.png)
 
 我们已经把要做的做完了，现在要做的就是训练这个逻辑回归分类器：$h_\theta^{\left( i \right)}\left( x \right)$， 其中 $i$ 对应每一个可能的 $y=i$，最后，为了做出预测，我们给出输入一个新的 $x$ 值，用这个做预测。我们要做的就是在我们三个分类器里面输入 $x$，然后我们选择一个让 $h_\theta^{\left( i \right)}\left( x \right)$ 最大的$ i$，即$\mathop{\max}\limits_i\,h_\theta^{\left( i \right)}\left( x \right)$。
 
@@ -249,13 +249,13 @@ ${h_\theta}\left( x \right)=\frac{1}{1+{{e}^{-{\theta^T}X}}}$
 
 下图是一个回归问题的例子：
 
-![](/images/ml-images/72f84165fbf1753cd516e65d5e91c0d3.jpg)
+![](/images/coursera-machinelearning/72f84165fbf1753cd516e65d5e91c0d3.jpg)
 
 第一个模型是一个线性模型，欠拟合，不能很好地适应我们的训练集；第三个模型是一个四次方的模型，过于强调拟合原始数据，而丢失了算法的本质：预测新数据。我们可以看出，若给出一个新的值使之预测，它将表现的很差，是过拟合，虽然能非常好地适应我们的训练集但在新输入变量进行预测时可能会效果不好；而中间的模型似乎最合适。
 
 分类问题中也存在这样的问题：
 
-![](/images/ml-images/be39b497588499d671942cc15026e4a2.jpg)
+![](/images/coursera-machinelearning/be39b497588499d671942cc15026e4a2.jpg)
 
 就以多项式理解，$x$ 的次数越高，拟合的越好，但相应的预测的能力就可能变差。
 
@@ -274,7 +274,7 @@ ${h_\theta}\left( x \right)={\theta_{0}}+{\theta_{1}}{x_{1}}+{\theta_{2}}{x_{2}^
 
 其中$\lambda ​$又称为正则化参数（**Regularization Parameter**）。 注：根据惯例，我们不对${\theta_{0}}​$ 进行惩罚。经过正则化处理的模型与原模型的可能对比如下图所示：
 
-![](/images/ml-images/ea76cc5394cf298f2414f230bcded0bd.jpg)
+![](/images/coursera-machinelearning/ea76cc5394cf298f2414f230bcded0bd.jpg)
 
 如果选择的正则化参数$\lambda​$ 过大，则会把所有的参数都最小化了，导致模型变成 ${h_\theta}\left( x \right)={\theta_{0}}​$，也就是上图中红色直线所示的情况，造成欠拟合。
 所以对于正则化，我们要取一个合理的 $\lambda​$ 的值，这样才能更好的应用正则化。

@@ -37,7 +37,7 @@ $({x}^{(i)},{y}^{(i)})$ 代表第$i$ 个观察实例
 
 $h$  代表学习算法的解决方案或函数也称为假设（**hypothesis**）
 
-![](/images/ml-images/ad0718d6e5218be6e6fce9dc775a38e6.png)
+![](/images/coursera-machinelearning/ad0718d6e5218be6e6fce9dc775a38e6.png)
 
 ### 代价函数
 
@@ -53,7 +53,7 @@ ${\theta_{j}}:={\theta_{j}}-\alpha \frac{\partial}{\partial {\theta_{j}}}J\left(
 
 描述：对$\theta ​$赋值，使得$J\left( \theta  \right)​$按梯度下降最快方向进行，一直迭代下去，最终得到局部最小值。其中$a​$是学习率（**learning rate**），它决定了我们沿着能让代价函数下降程度最大的方向向下迈出的步子有多大。
 
-![](/images/ml-images/ee916631a9f386e43ef47efafeb65b0f.png)
+![](/images/coursera-machinelearning/ee916631a9f386e43ef47efafeb65b0f.png)
 
 这就是我梯度下降法的更新规则：${\theta_{j}}:={\theta_{j}}-\alpha \frac{\partial}{\partial {\theta_{j}}}J\left( \theta  \right)​$
 
@@ -69,7 +69,7 @@ ${\theta_{j}}:={\theta_{j}}-\alpha \frac{\partial}{\partial {\theta_{j}}}J\left(
 
 梯度下降算法和线性回归算法比较如图：
 
-![](/images/ml-images/5eb364cc5732428c695e2aa90138b01b.png)
+![](/images/coursera-machinelearning/5eb364cc5732428c695e2aa90138b01b.png)
 
 对我们之前的线性回归问题运用梯度下降法，关键在于求出代价函数的导数，即：
 
