@@ -1,12 +1,12 @@
 ---
 typora-root-url: ../
-title: "Coursera Andrew Ng | 机器学习第3周 - 逻辑回归 (Logistic Regression)"
+title: "Coursera Machine Learning | 机器学习第3周 - 逻辑回归 (Logistic Regression)"
 categories: "technology"
 tags:
   - machine-learning
 ---
 
-
+Coursera 吴恩达 (Andrew Ng) "Machine Learning" 课程笔记
 
 ---
 

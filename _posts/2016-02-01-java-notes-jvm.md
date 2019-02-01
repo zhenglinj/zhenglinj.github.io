@@ -1,13 +1,13 @@
 ---
 typora-root-url: ../
-title: "Java 从零进阶 - JVM"
+title: "Java | JVM"
 categories: "technology"
 tags:
   - java
 ---
 
 
-《Java 从零进阶》系列将从：Java语言基础，JVM，并发编程三方面从介绍到深入理解Java。本文是该系列的JVM。
+Java 系列将从：Java语言基础，JVM，并发编程三方面从介绍到深入理解Java。本文是该系列的JVM。
 
 ---
 

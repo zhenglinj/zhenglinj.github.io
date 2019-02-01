@@ -1,12 +1,12 @@
 ---
 typora-root-url: ../
-title: "Coursera Andrew Ng | 机器学习第1周 - 线性回归 (Linear Regression)"
+title: "Coursera Machine Learning | 机器学习第1周 - 线性回归 (Linear Regression)"
 categories: "technology"
 tags:
   - machine-learning
 ---
 
-
+Coursera 吴恩达 (Andrew Ng) "Machine Learning" 课程笔记
 
 ---
 
