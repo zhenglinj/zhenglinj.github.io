@@ -1,6 +1,6 @@
 ---
 typora-root-url: ../
-title: "Coursera Machine Learning | 机器学习第1周 - 线性回归 (Linear Regression)"
+title: "Coursera Machine Learning | 机器学习第2周 - 线性回归 (Linear Regression)"
 categories: "technology"
 tags:
   - machine-learning
