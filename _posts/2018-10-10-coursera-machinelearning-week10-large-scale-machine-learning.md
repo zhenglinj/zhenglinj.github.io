@@ -6,7 +6,7 @@ tags:
   - machine-learning
 ---
 
-十六、Coursera 吴恩达 (Andrew Ng) "Machine Learning" 课程笔记
+Coursera 吴恩达 (Andrew Ng) "Machine Learning" 课程笔记
 
 ---
 
