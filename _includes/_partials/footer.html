@@ -6,12 +6,12 @@
   <span class="with-love">
     <i class="fa fa-{{ site.authoricon }}"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">{{ site.author }}</span>
+  <span class="author" itemprop="copyrightHolder">{{ site.author.name }}</span>
 </div>
 
 {% if site.copyright %}
 <div class="powered-by">
-  {{ __.footer.powered | replace: '%s', '<a class="theme-link" href="https://jekyllrb.com">Jekyll</a>') }}
+  <a href="http://github.com/{{ site.author.github }}/{{ site.author.github }}.github.io/new/master/_posts" target="_blank" title="撰写文章">Po</a>wer<a href="http://github.com/{{ site.author.github }}/{{ site.author.github }}.github.io/edit/master/{{ page.path }}" target="_blank" title="编辑页面">ed</a> by <a class="theme-link" href="https://jekyllrb.com">Jekyll</a>
 </div>
 
 <div class="theme-info">

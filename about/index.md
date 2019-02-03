@@ -7,4 +7,4 @@ type: about
 
 - 程序员
 - 热爱数学/编程
-- Notes: Technology + Mathematic + Thought
+- 本站内容：Notes = Technology + Mathematic + Thought

@@ -7,7 +7,14 @@
 title: Zhenglinjun's Notes
 subtitle:
 description: My Notes
-author: Zheng, Linjun
+author:
+  name: Zheng, Linjun
+  twitter:
+  picture:
+  github: zhenglinj
+  sinaweibo: zhenglinj
+  email: zhenglinj@hotmail.com
+
 # Support language: de, en, fr-FR, id, ja, ko, pt-BR, pt, ru, zh-Hans, zh-hk, zh-tw
 language: en
 date_format: '%Y-%m-%d'
