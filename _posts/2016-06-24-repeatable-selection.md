@@ -147,11 +147,10 @@ def numerical_result(n=NUM):
             x.pop()
 
     result = [0] * n
-    for x in _fill_nums(n, n):
-        result[len(set(x)) - 1] += 1
-    for idx in range(0, len(result)):
-        # result[idx] 是先在n个元素选择idx+1个再进行"可重复遍历有序选择"的结果数，所以要除以C(n, idx + 1)
-        result[idx] = int(result[idx] / C(n, idx + 1))
+    for k in range(1, n + 1):
+        for x in _fill_nums(n, k):
+            if len(set(x)) == k:
+                result[len(set(x)) - 1] += 1
     return result
 
 
@@ -161,7 +160,7 @@ def main(args=None):
     result = algebra_result()
     print("Algebra result:")
     for r in result:
-        print("a({0:d}, {1:d}) = {2:d},".format(NUM, k, int(np.round(r))))
+        print("a({0:d}, {1:d}) = {2:d} ({3:f}),".format(NUM, k, int(np.round(r)), np.float(r)))
         k += 1
     print()
     k = 1
@@ -180,14 +179,14 @@ main()
 ```
 K items repeatable all selection N times (N >= k, N = 8):
 Algebra result:
-a(8, 1) = 1,
-a(8, 2) = 254,
-a(8, 3) = 5796,
-a(8, 4) = 40824,
-a(8, 5) = 126000,
-a(8, 6) = 191520,
-a(8, 7) = 141120,
-a(8, 8) = 40320,
+a(8, 1) = 1 (1.000000),
+a(8, 2) = 254 (254.000000),
+a(8, 3) = 5796 (5796.000000),
+a(8, 4) = 40824 (40824.000000),
+a(8, 5) = 126000 (126000.000000),
+a(8, 6) = 191520 (191520.000000),
+a(8, 7) = 141120 (141120.000000),
+a(8, 8) = 40320 (40320.000000),
 
 Numerical result:
 a(8, 1) = 1,
