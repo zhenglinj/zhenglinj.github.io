@@ -300,7 +300,7 @@ $$ARI=\frac{\sum\limits_{i,j}{C_{{{n}_{ij}}}^{2}}-\left[ \left( \sum\limits_{i}{
 第一步是均值归一化。我们需要计算出所有特征的均值，然后令 $x_j= x_j-μ_j$。如果特征是在不同的数量级上，我们还需要将其除以标准差 $σ^2$。
 
 第二步是计算**协方差矩阵**（**covariance matrix**）$Σ$：
-$\sum=\dfrac {1}{m}\sum^{n}_{i=1}\left( x^{(i)}\right) \left( x^{(i)}\right) ^{T}$
+$\sum=\dfrac {1}{m}\sum^{m}_{i=1}\left( x^{(i)}\right) \left( x^{(i)}\right) ^{T}$
 
 
 第三步是计算协方差矩阵$Σ$的**特征向量**（**eigenvectors**）:
@@ -309,7 +309,7 @@ $\sum=\dfrac {1}{m}\sum^{n}_{i=1}\left( x^{(i)}\right) \left( x^{(i)}\right) ^{T
 
 ![](/images/coursera-machinelearning/0918b38594709705723ed34bb74928ba.png)
 
-$$Sigma=\dfrac {1}{m}\sum^{n}_{i=1}\left( x^{(i)}\right) \left( x^{(i)}\right) ^{T}$$
+$$Sigma=\dfrac {1}{m}\sum^{m}_{i=1}\left( x^{(i)}\right) \left( x^{(i)}\right) ^{T}$$
 
 ![](/images/coursera-machinelearning/01e1c4a2f29a626b5980a27fc7d6a693.png)
 
@@ -334,8 +334,6 @@ $$z^{(i)}=U^{T}_{reduce}*x^{(i)}$$
 我们可以先令$k=1$，然后进行主要成分分析，获得$U_{reduce}$和$z$，然后计算比例是否小于1%。如果不是的话再令$k=2$，如此类推，直到找到可以使得比例小于1%的最小$k$ 值（原因是各个特征之间通常情况存在某种相关性）。
 
 还有一些更好的方式来选择$k$，当我们在**Octave**中调用“**svd**”函数的时候，我们获得三个参数：`[U, S, V] = svd(sigma)`。
-
-当我们在**Python**中调用Numpy包 **numpy.linalg.svd** 函数的时候，我们获得三个参数：`u, s, vh = np.linalg.svd(a, full_matrices=True)`。
 
 ![](/images/coursera-machinelearning/a4477d787f876ae4e72cb416a2cb0b8a.jpg)
 
