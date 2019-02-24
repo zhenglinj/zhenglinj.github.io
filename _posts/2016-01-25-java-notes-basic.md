@@ -32,7 +32,7 @@ Java 系列将从：Java语言基础，JVM，并发编程三方面从介绍到�
 
 Java集合框架(Java collections framework, JCF)是一组实现集合数据结构的类和接口。集合框架示意图如下(实际远比下图复杂)，图片来源于[这里](http://www.codejava.net/images/articles/javacore/collections/collections%20framework%20overview.png)
 
-![Alt Text](/images/collections-framework-overview_thumb.png )
+![Alt Text](/images/java/collections-framework-overview_thumb.png )
 
 常用的集合类:
 > `ArrayList` `LinkedList` `HashMap` `LinkedHashMap` `TreeMap` `HashSet` `LinkedHashSet` `TreeSet`
@@ -51,7 +51,7 @@ Java的IO操作中有面向字节(Byte)和面向字符(Character)两种方式。
 
 总结：以InputStream（输入）/OutputStream（输出）为后缀的是字节流；以Reader（输入）/Writer（输出）为后缀的是字符流。Java流类图结构如下：
 
-![Alt Text](/images/java_io_stream.jpg )
+![Alt Text](/images/java/java_io_stream.jpg )
 
 ### Java NIO和IO的主要区别
 
