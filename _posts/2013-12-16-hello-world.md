@@ -6,7 +6,7 @@ tags:
   - markdown
 ---
 
-这是测试页面，测试显示的效果，用Markdown写博文，和一些实用的插件。内容主要介绍用Hexo建博客，同时以下是简介及实例作为笔记备忘。
+这是测试页面，测试显示效果，和一些实用的插件。内容主要介绍用Jekyll/Hexo建博客，用Markdown写博文，同时以下是简介及实例作为笔记备忘。
 
 
 ## 用Jekyll/Hexo在Github上建博客
@@ -195,12 +195,11 @@ $$
 \right] 
 $$
 
-
 ### Flowchart / Mermaid 流程图
 
-目前使用 [flowchart.js](https://github.com/adrai/flowchart.js)
-[flowchart docs](http://flowchart.js.org/)
-[mermaid docs](http://knsv.github.io/mermaid/index.html#mermaid)
+目前使用 [flowchart.js](https://github.com/adrai/flowchart.js)  
+[flowchart docs](http://flowchart.js.org/)  
+[mermaid docs](http://knsv.github.io/mermaid/index.html#mermaid)  
 
 **示例：**
 
@@ -243,3 +242,4 @@ c2(no)->op2->e
 ## 结束语
 
 **最后，保持现在这种激情写博文！**
+
