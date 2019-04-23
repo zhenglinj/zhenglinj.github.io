@@ -14,12 +14,9 @@ Java 系列将从：Java语言基础，JVM，并发编程三方面从介绍到�
 ## Java基础知识
 
 - [Java入门教程](https://www.tutorialspoint.com/java/index.htm)  
-- Java关键字
-- [Java基本数据类型](http://www.runoob.com/java/java-basic-datatypes.html)  
-- [Java String的使用](http://www.runoob.com/java/java-string.html)  
 - [JDK源码](http://grepcode.com/snapshot/repository.grepcode.com/java/root/jdk/openjdk/8-b132/)  
 
-开发环境教程：[IntelliJ IDEA 使用教程](http://wiki.jikexueyuan.com/project/intellij-idea-tutorial/)  
+- 开发环境教程：[IntelliJ IDEA 使用教程](http://wiki.jikexueyuan.com/project/intellij-idea-tutorial/)  
 
 **基础包源代码**
 
