@@ -3,8 +3,8 @@ typora-root-url: ../
 title:      "Java | 深入理解JVM(6)——类加载器"
 categories: "technology"
 tags:
-    - Java
-    - JVM
+    - java
+    - jvm
 ---
 
 [转载自Crow的博客](https://crowhawk.github.io/)
