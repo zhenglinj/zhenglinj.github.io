@@ -29,7 +29,7 @@ Scala 是一门多范式的编程语言，一种类似 Java 的编程语言，�
 
 简明教程适合有一定基础 [Scala Tutorial](https://www.scala-lang.org/docu/files/ScalaTutorial-zh_CN.pdf) 或 [Github Scala Tutorial](https://github.com/zhenglinj/zhenglinj.github.io/blob/master/documents/ScalaTutorial-zh_CN.pdf)
 
-教程中的代码 [ScalaTutorialCode.scala](/code/ScalaTutorialCode.scala)
+教程中的代码 [ScalaTutorialCode.scala](https://github.com/zhenglinj/zhenglinj.github.io/blob/master/code/ScalaTutorialCode.scala)
 
 
 
