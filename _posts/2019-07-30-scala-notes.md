@@ -27,9 +27,8 @@ Scala 是一门多范式的编程语言，一种类似 Java 的编程语言，�
 
 ## Scala教程
 
-简明教程适合有一定基础 [Scala Tutorial](https://www.scala-lang.org/docu/files/ScalaTutorial-zh_CN.pdf) 或 [Github Scala Tutorial](https://github.com/zhenglinj/zhenglinj.github.io/blob/master/documents/ScalaTutorial-zh_CN.pdf)
+- **[Scala Tutorial](https://www.scala-lang.org/docu/files/ScalaTutorial-zh_CN.pdf)** 简明教程介绍了Scala的主要特色，适合有一定基础  (或 [Github Scala Tutorial](https://github.com/zhenglinj/zhenglinj.github.io/blob/master/documents/ScalaTutorial-zh_CN.pdf) 教程中的代码 [ScalaTutorialCode.scala](https://github.com/zhenglinj/zhenglinj.github.io/blob/master/code/ScalaTutorialCode.scala) )
 
-教程中的代码 [ScalaTutorialCode.scala](https://github.com/zhenglinj/zhenglinj.github.io/blob/master/code/ScalaTutorialCode.scala)
-
-
+-  **[Scala课堂]( http://twitter.github.io/scala_school/zh_cn/ )** Twitter启动的一系列讲座，用来帮助有经验的工程师成为高效的[Scala](https://www.scala-lang.org/) 程序员 
+- **[Effective Scala](https://twitter.github.io/effectivescala/index-cn.html)** Twitter的Scala最佳实践。对理解Twitter的代码风格非常有用。
 
