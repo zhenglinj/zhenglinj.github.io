@@ -19,12 +19,6 @@ tags:
 
 Scala 是一门多范式的编程语言，一种类似 Java 的编程语言，设计初衷是要集成面向对象编程和函数式编程的各种特性。
 
-### 为何选择
-
-- 表达能力：函数是一等公民。闭包
-- 简洁：类型推断。函数创建的文法支持
-- Java互操作性：可重用 Java 库，Java 工具。没有性能惩罚
-
 ## Scala教程
 
 - **[Scala Tutorial](https://www.scala-lang.org/docu/files/ScalaTutorial-zh_CN.pdf)** 简明教程介绍了Scala的主要特色，适合有一定基础  (或 [Github Scala Tutorial](https://github.com/zhenglinj/zhenglinj.github.io/blob/master/documents/ScalaTutorial-zh_CN.pdf) 教程中的代码 [ScalaTutorialCode.scala](https://github.com/zhenglinj/zhenglinj.github.io/blob/master/code/ScalaTutorialCode.scala) )
