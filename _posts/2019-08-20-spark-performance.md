@@ -2,18 +2,17 @@
 typora-root-url: ../
 analytics: true
 comments: true
-link: http://www.google.com/
-title: "title"
+title: "优化Spark作业以获得最佳性能"
 categories: "technology"
 tags:
-  - tags
+  - spark
 ---
 
 ---
 
 # 优化Spark作业以获得最佳性能
 
-原文 https://michalsenkyr.github.io/2018/01/spark-performance#dataframes-and-datasets 
+[原文](https://michalsenkyr.github.io/2018/01/spark-performance#dataframes-and-datasets)
 
 ---
 

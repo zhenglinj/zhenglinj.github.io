@@ -130,6 +130,63 @@ org.apache.spark.executor.CoarseGrainedExecutorBackend
 
 
 
+## Spark 通信架构
+
+Spark2.X版本使用Netty框架作为内部通信组件，基于Netty新的RPC框架，基于Actor模型。
+
+EndPoint (Client/Master/Worker) 有1个InBox和N个OutBox (N>=1, N取决于当前EndPoint与多少其他EndPoint通信)
+
+```
+1. CoarseGrainedExecutorBackend.scala
+main()
+  run()
+    env.rpcEnv.setupEndpoint("Executor", new CoarseGrainedExecutorBackend(env.rpcEnv, driverUrl, executorId, hostname, cores, userClassPath, env))
+    // env.rpcEnv.setupEndpoint() 函数调用相当于给 CoarseGrainedExecutorBackend 发送 OnStart
+    env.rpcEnv.awaitTermination()
+
+2. RpcEnv.scala, NettyRpcEnv.scala
+private[netty] class NettyRpcEnv() extends RpcEnv
+override def setupEndpoint(name: String, endpoint: RpcEndpoint)
+	dispatcher.registerRpcEndpoint(name, endpoint)
+		val addr = RpcEndpointAddress(nettyEnv.address, name)
+    val endpointRef = new NettyRpcEndpointRef(nettyEnv.conf, addr, nettyEnv)
+    endpoints.putIfAbsent(name, new EndpointData(name, endpoint, endpointRef))
+      private class EndpointData()
+    	  val inbox = new Inbox(ref, endpoint)
+    	    // 初始化Inbox时马上发送OnStart
+    	    // RpcEndpoint状态变化 constructor -> onStart -> receive* -> onStop
+    		  inbox.synchronized {messages.add(OnStart)}
+    		  
+3. CoarseGrainedExecutorBackend.scala
+// 触发OnStart
+override def onStart()
+  // Executor向driver发送RegisterExecutor信息
+  driver = Some(ref)
+  ref.ask[Boolean](RegisterExecutor(executorId, self, hostname, cores, extractLogUrls))
+  
+4. 用户代码中的SparkContext类
+new SparkContext()
+  _schedulerBackend: SchedulerBackend
+    class CoarseGrainedSchedulerBackend() extends ExecutorAllocationClient with SchedulerBackend with Logging
+
+5. CoarseGrainedSchedulerBackend.scala
+override def receiveAndReply(context: RpcCallContext)
+  RegisterExecutor
+    addressToExecutorId(executorAddress) = executorId
+    totalCoreCount.addAndGet(cores)
+    totalRegisteredExecutors.addAndGet(1)
+    // 向Executor发送RegisteredExecutor
+    executorRef.send(RegisteredExecutor)
+    
+6. CoarseGrainedExecutorBackend.scala
+override def receive
+  RegisteredExecutor
+```
+
+Spark通信框架，Driver与Executor通信过程如下图所示：
+
+![](/images/spark-comunication-framework.png)
+
 
 
 ## SparkContext原理剖析与源码分析
@@ -165,8 +222,7 @@ org.apache.spark.executor.CoarseGrainedExecutorBackend
     2、注册机制原理剖析与源码分析
 
 
-​    
-注册机制原理剖析：
+
 
 
 ![](http://i2.51cto.com/images/blog/201810/03/c5e771f04be1cd7061e4bc6b1770991a.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)
@@ -191,7 +247,7 @@ Worker原理剖析：
 
 
 
-## job触发流程原理剖析与源码分析
+## Job触发流程原理剖析与源码分析
 
 
  wordcount
@@ -210,11 +266,120 @@ Worker原理剖析：
     counts.foreach(count => println(count._1 + ": " + count._2))
 
 
+
+
+
 ## DAGScheduler原理剖析与源码分析
+
+WordCount例子代码：
+
+```java
+SparkSession spark = SparkSession
+  .builder()
+  .appName("JavaWordCount")
+  .getOrCreate();
+
+JavaRDD<String> lines = spark.read().textFile(args[0]).javaRDD();
+JavaRDD<String> words = lines.flatMap(s -> Arrays.asList(SPACE.split(s)).iterator());
+JavaPairRDD<String, Integer> ones = words.mapToPair(s -> new Tuple2<>(s, 1));
+JavaPairRDD<String, Integer> counts = ones.reduceByKey((i1, i2) -> i1 + i2);
+List<Tuple2<String, Integer>> output = counts.collect();
+for (Tuple2<?,?> tuple : output) {
+  System.out.println(tuple._1() + ": " + tuple._2());
+}
+
+spark.stop();
+```
+
+
 
 stage划分算法原理剖析：
 
 ![](http://i2.51cto.com/images/blog/201810/03/3a6416e270ca0bdab5f85091e1a0bbda.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)
+
+
+
+![spark-app-stage-schedule-execution](/images/spark-app-stage-schedule-execution.png)
+
+装饰者设计模式 RDD进过transform操作一层层包装
+
+```
+1. textFile
+spark.read().textFile(args[0])
+  textFile(Seq(path): _*)
+    text(paths : _*)
+      format("text").load(paths : _*)
+        Dataset.ofRows(...)
+          new Dataset[Row](sparkSession, qe, RowEncoder(qe.analyzed.schema))
+ 
+2. flatMap
+lines.flatMap(s -> Arrays.asList(SPACE.split(s)).iterator());
+  JavaRDD.fromRDD(rdd.flatMap(fn)(fakeClassTag[U]))(fakeClassTag[U])
+    new MapPartitionsRDD[U, T](this, (context, pid, iter) => iter.flatMap(cleanF))
+      
+    
+3. mapToPair
+words.mapToPair(s -> new Tuple2<>(s, 1));
+  new JavaPairRDD(rdd.map[(K2, V2)](f)(cm))(fakeClassTag[K2], fakeClassTag[V2])
+    new MapPartitionsRDD[U, T](this, (context, pid, iter) => iter.map(cleanF))
+
+4. reduceByKey
+ones.reduceByKey((i1, i2) -> i1 + i2);
+  fromRDD(reduceByKey(defaultPartitioner(rdd), func))
+    fromRDD(rdd.reduceByKey(partitioner, func))
+      combineByKeyWithClassTag[V]((v: V) => v, func, func, partitioner)
+        new ShuffledRDD[K, V, C](self, partitioner)
+
+5. collect
+counts.collect();
+  rdd.collect().toSeq.asJava
+    val results = sc.runJob(this, (iter: Iterator[T]) => iter.toArray)
+      runJob(rdd, func, 0 until rdd.partitions.length)
+        runJob(rdd, (ctx: TaskContext, it: Iterator[T]) => cleanedFunc(it), partitions)
+          runJob[T, U](rdd, func, partitions, (index, res) => results(index) = res)
+            dagScheduler.runJob(...)
+              val waiter = submitJob(...)
+                eventProcessLoop.post(...)
+                  private[spark] val eventProcessLoop = new DAGSchedulerEventProcessLoop(this)
+                  
+6. DAGSchedulerEventProcessLoop extends EventLoop 提交DAG分解成Stage再分解成Task
+private val eventQueue: BlockingQueue[E] = new LinkedBlockingDeque[E]()
+  val eventThread = new Thread(name)
+    run()
+      onReceive(event)
+        DAGSchedulerEventProcessLoop.onReceive(event: DAGSchedulerEvent)
+          DAGSchedulerEventProcessLoop.doOnReceive(event)
+            dagScheduler.handleJobSubmitted(jobId, rdd, func, partitions, callSite, listener, properties)
+              finalStage = createResultStage(finalRDD, func, partitions, jobId, callSite)
+                val parents = getOrCreateParentStages(rdd, jobId)
+                  getShuffleDependencies()
+                    getOrCreateShuffleMapStage(shuffleDep, firstJobId)
+                val stage = new ResultStage(id, rdd, func, partitions, parents, jobId, callSite)
+              submitStage(finalStage)
+                val missing = getMissingParentStages(stage).sortBy(_.id) // 最终阶段的RDD。例子中missing变量是reduceByKey前的一个Stage，即图中shuffleMapStage
+                submitMissingTasks(stage, jobId.get)
+                  val tasks: Seq[Task[_]] = try {}
+                  taskScheduler.submitTasks(new TaskSet(tasks.toArray, stage.id, stage.latestInfo.attemptNumber, jobId, properties))
+                    schedulableBuilder.addTaskSetManager(manager, manager.taskSet.properties)
+                      rootPool.addSchedulable(manager)
+                      
+7. CoarseGrainedSchedulerBackend 发送序列化的Task
+case ReviveOffers => 
+  makeOffers()
+    launchTasks(taskDescs)
+      executorData.executorEndpoint.send(LaunchTask(new SerializableBuffer(serializedTask)))
+    
+8. CoarseGrainedExecutorBackend 执行Task
+case LaunchTask(data) => 
+  val taskDesc = TaskDescription.decode(data.value)
+  executor.launchTask(this, taskDesc)
+```
+
+
+
+![spark-component](/images/spark-component.png)
+
+
 
 
 
@@ -241,29 +406,25 @@ Task原理剖析：
 ![](http://i2.51cto.com/images/blog/201810/03/897819700ae1f0a02eae70b993a9d8a5.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)
 
 
+
 ## Shuffle原理剖析与源码分析
 
 ###  Shuffle原理剖析与源码分析
 
-
-​    
-​    1、在Spark中，什么情况下，会发生shuffle？reduceByKey、groupByKey、sortByKey、countByKey、join、cogroup等操作。
-​    2、默认的Shuffle操作的原理剖析
-​    3、优化后的Shuffle操作的原理剖析
-​    4、Shuffle相关源码分析
-
-
+1. 在Spark中reduceByKey, groupByKey, sortByKey, countByKey, join, cogroup等操作情况下，会发生shuffle
+2. 默认的Shuffle操作的原理剖析
+3. 优化后的Shuffle操作的原理剖析
+4. Shuffle相关源码分析
 
 ###  Spark Shuffle操作的两个特点
 
-
-### 第一个特点，
+#### 第一个特点
 
 在Spark早期版本中，那个bucket缓存是非常非常重要的，因为需要将一个ShuffleMapTask所有的数据都写入内存缓存之后，才会刷新到磁盘。但是这就有一个问题，如果map side数据过多，那么很容易造成内存溢出。所以spark在新版本中，优化了，默认那个内存缓存是100kb，然后呢，写入一点数据达到了刷新到磁盘的阈值之后，就会将数据一点一点地刷新到磁盘。
 
 这种操作的优点，是不容易发生内存溢出。缺点在于，如果内存缓存过小的话，那么可能发生过多的磁盘写io操作。所以，这里的内存缓存大小，是可以根据实际的业务情况进行优化的。
 
-### 第二个特点，
+#### 第二个特点
 
 与MapReduce完全不一样的是，MapReduce它必须将所有的数据都写入本地磁盘文件以后，才能启动reduce操作，来拉取数据。为什么？因为mapreduce要实现默认的根据key的排序！所以要排序，肯定得写完所有数据，才能排序，然后reduce来拉取。
 
@@ -326,112 +487,5 @@ checkpoint，就是说，首先呢，要调用SparkContext的setCheckpointDir()�
 
 
 ![](http://i2.51cto.com/images/blog/201810/03/3022304bfaed6bd2fc1cf8fe8198332c.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
