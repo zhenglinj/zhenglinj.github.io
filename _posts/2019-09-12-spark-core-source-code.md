@@ -381,8 +381,6 @@ case LaunchTask(data) =>
 
 
 
-
-
 ## TaskScheduler原理剖析与源码分析
 
 ## Executor原理剖析与源码分析
@@ -409,12 +407,93 @@ Task原理剖析：
 
 ## Shuffle原理剖析与源码分析
 
-###  Shuffle原理剖析与源码分析
+### Shuffle原理剖析
 
 1. 在Spark中reduceByKey, groupByKey, sortByKey, countByKey, join, cogroup等操作情况下，会发生shuffle
-2. 默认的Shuffle操作的原理剖析
-3. 优化后的Shuffle操作的原理剖析
-4. Shuffle相关源码分析
+
+### Shuffle源码分析
+
+1. ShuffleMapStage 和 ResultStage
+
+   ShuffleMapStage结束伴随着shuffle文件写磁盘。ResultStage基本上对应着行动（action）算子，即将一个函数应用在RDD的各个partition数据集上，意味着一个job的运行结束
+
+2. Shuffle中的任务个数
+
+   Shuffle分为map阶段（ShuffleMapStage）和reduce（ResultStage）阶段，或者称之为ShuffleRead和ShuffleWrite阶段。
+
+   如果文件中读取数据由split个数决定。
+
+   如果初始RDD经过一系列算子计算后（假设没有执行repartition和coalesce算子进行重新分区，则分区个数不变仍为N，如果经过重分区算子，分区个数变为M），那么执行到shuffle操作时，map端task个数与分区一致，即为N；reduce端stage默认取spark.default.parallelism这个配置项的值作为分区数，如果没有配置则以map端最后一个RDD分区数作为其分区数也就是N。
+
+```
+1. CoarseGrainedExecutorBackend Executor执行任务
+LaunchTask()
+
+2. CoarseGrainedSchedulerBackend Driver分配任务
+
+3. DAGScheduler 调度任务
+submitMissingTasks(stage: Stage, jobId: Int)
+  new ShuffleMapTask() //ShuffleMapStage
+  new ResultTask() //ResultStage
+  
+4. ShuffleMapTask
+runTask(context: TaskContext)
+  writer.write(rdd.iterator(partition, context).asInstanceOf[Iterator[_ <: Product2[Any, Any]]])
+  
+5. ResultTask
+runTask(context: TaskContext)
+  func(context, rdd.iterator(partition, context)) //rdd.iterator(partition, context)
+    computeOrReadCheckpoint(split, context) //recursive compute RDD
+      compute(split, context)  //finally goto compute() function
+        SparkEnv.get.shuffleManager.getReader(dep.shuffleHandle, split.index, split.index + 1, context).read().asInstanceOf[Iterator[(K, C)]] //take ShuffledRDD for example
+
+6. SortShuffleWriter extends ShuffleWriter
+write(records: Iterator[Product2[K, V]])
+  shuffleBlockResolver.writeIndexFileAndCommit(dep.shuffleId, mapId, partitionLengths, tmp) 
+```
+
+1. 早期版本的HashShuffle操作的原理剖析
+
+   未经优化HashShuffleManager：M个map端task输出到N个reduce端task分别对应的文件，共产生M*N个文件。缺点小文件太多
+
+   ![hash-shuffle-1](/images/hash-shuffle-1.png)
+
+   经优化HashShuffleManager：Executor 1 cpu core共用一个输出文件，M个map端task输出到N个reduce端task分别对应的文件，共产生NumberOfCore*N个文件。小文件有所减少，但是如果集群core多的话小文件还是多
+
+   ![hash-shuffle-2](/images/hash-shuffle-2.png)
+
+2. 优化后的SortShuffle操作的原理剖析
+
+   SortShuffle：map端输出索引文件和磁盘文件
+
+   ![sort-shuffle-1](/images/sort-shuffle-1.png)
+
+```
+1. ShuffleMapTask
+runTask(context: TaskContext)
+  writer = manager.getWriter[Any, Any](dep.shuffleHandle, partitionId, context)
+  
+2. SortShuffleManager extends ShuffleManager
+getWriter[K, V]()
+  handle match {}
+    new UnsafeShuffleWriter()
+    new BypassMergeSortShuffleWriter()
+    new SortShuffleWriter()
+    
+registerShuffle[K, V, C]()
+  new BypassMergeSortShuffleHandle[K, V]()
+  new SerializedShuffleHandle[K, V]()
+  new BaseShuffleHandle()
+  
+3. SortShuffleWriter extends ShuffleWriter
+write(records: Iterator[Product2[K, V]])
+  sorter.insertAll(records)
+    maybeSpillCollection(usingMap = true)
+```
+
+
+
+
 
 ###  Spark Shuffle操作的两个特点
 
