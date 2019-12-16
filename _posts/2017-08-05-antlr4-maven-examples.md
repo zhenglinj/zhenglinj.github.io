@@ -84,9 +84,9 @@ Token流再最终组装成一棵ParseTree，叶子节点是TerminalNode，非叶
 
 ### 多种分支的情况
 
-如果有多种可能的话，在语法里用"|"符号分别列出来就是了。ANTLR会把它翻译成switch case一样的语句。
+如果有多种可能的话，在语法里用`|`符号分别列出来就是了。ANTLR会把它翻译成switch case一样的语句。
 
-我们把我们上面的例子扩展一下，不光支持'='还支持':='赋值
+我们把我们上面的例子扩展一下，不光支持`=`还支持`:=`赋值
 
 ```antlr
 grammar assign2;
@@ -150,7 +150,7 @@ NUMBER : [1-9][0-9]*|[0]|([0-9]+[.][0-9]+) ;
 ### 二义性文法
 
 选择太多了也未必见得是好事儿，有一种副作用就是选择不是唯一的，这叫做『二义性文法』。
-最简单的二义性文法就是把同一条规则写两遍，比如上面例子的":="我们就改成"="，让"|"之前和之后两条都一样。
+最简单的二义性文法就是把同一条规则写两遍，比如上面例子的`:=`我们就改成`=`，让`|`之前和之后两条都一样。
 
 ```antlr
 grammar assign2;
@@ -278,6 +278,8 @@ ANTLR4 提供了 [Maven Plugin](https://www.antlr.org/api/maven-plugin/latest/)�
 简化版的calculator。参考：https://github.com/antlr/grammars-v4/tree/master/calculator/calculator.g4
 
 ```antlr
+grammar Calculator;
+
 stmt:   expr NEWLINE                    # printExpr
     |   ID '=' expr NEWLINE             # assign
     |   NEWLINE                         # blank
@@ -289,17 +291,19 @@ expr:   <assoc=right> expr op='^' expr  # pow
     |   INT                             # int
     |   ID                              # id
     |   '(' expr ')'                    # parens
+    ;
 
 MUL : '*';
 DIV : '/';
 ADD : '+';
 SUB : '-';
-ID  : Letter LetterOrDigit*
-fragment Letter: [a-zA-Z_]
-fragment Digit: [0-9]
-fragment LetterOrDigit: Letter | Digit
-NEWLINE: '\r'? '\n'
-WS  : [ \t]+ -> skip
+ID  : Letter LetterOrDigit*;
+INT : Digit Digit*;
+fragment Letter: [a-zA-Z_];
+fragment Digit: [0-9];
+fragment LetterOrDigit: Letter | Digit;
+NEWLINE: '\r'? '\n';
+WS: [ \t]+ -> skip;
 ```
 
 在pom.xml中配置添加插件antlr4-maven-plugin，同时listerner和visitor配置为true，则生成以下代码文件。
@@ -310,45 +314,63 @@ WS  : [ \t]+ -> skip
 ```
 Calculator.interp
 CalculatorBaseListener.java
-CalculatorLexer.interp
-CalculatorLexer.tokens
-CalculatorParser.java
-Calculator.tokens
 CalculatorBaseVisitor.java
 CalculatorLexer.java
+CalculatorLexer.interp
 CalculatorListener.java
+CalculatorParser.java
 CalculatorVisitor.java
 ```
 
 ### 调用代码
 
 ```java
+package com.zhenglinj.antlr4example;
+
+import com.zhenglinj.antlr4example.calculator.*;
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
 import java.io.*;
 
 public class Calculator {
     public static void main(String[] args) throws IOException {
-        InputStream is = new FileInputStream("example/1.txt"); // or System.in;
-        ANTLRInputStream input = new ANTLRInputStream(is);
-        CalcLexer lexer = new CalcLexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        CalcParser parser = new CalcParser(tokens);
-        ParseTree tree = parser.calc(); // calc is the starting rule
+        System.out.println("Antlr4 Example");
+        try {
+            /*
+             * get the input file as an InputStream
+             */
+            InputStream inputStream = Java8.class.getResourceAsStream("/example.txt");
+            /*
+             * make Lexer
+             */
+            Lexer lexer = new CalculatorLexer(CharStreams.fromStream(inputStream));
+            /*
+             * get a TokenStream on the Lexer
+             */
+            TokenStream tokenStream = new CommonTokenStream(lexer);
+            /*
+             * make a Parser on the token stream
+             */
+            CalculatorParser parser = new CalculatorParser(tokenStream);
+            /*
+             * get the top node of the AST. This corresponds to the topmost rule of equation.q4, "equation"
+             */
+            CalculatorParser.StmtContext context = parser.stmt();
+            System.out.println(context.toStringTree(parser));
 
-        System.out.println("LISP:");
-        System.out.println(tree.toStringTree(parser));
-        System.out.println();
+            System.out.println("Visitor:");
+            EvalVisitor evalByVisitor = new EvalVisitor();
+            evalByVisitor.visit(context);
+            System.out.println();
 
-        System.out.println("Visitor:");
-        EvalVisitor evalByVisitor = new EvalVisitor();
-        evalByVisitor.visit(tree);
-        System.out.println();
-
-        System.out.println("Listener:");
-        ParseTreeWalker walker = new ParseTreeWalker();
-        Evaluator evalByListener = new Evaluator();
-        walker.walk(evalByListener, tree);
+            System.out.println("Listener:");
+            ParseTreeWalker walker = new ParseTreeWalker();
+            Evaluator evalByListener = new Evaluator();
+            walker.walk(evalByListener, context);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 ```
@@ -368,15 +390,17 @@ public class Calculator {
 我们实现一个求值的 Visitor。
 
 ```java
+package com.zhenglinj.antlr4example.calculator;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class EvalVisitor extends CalcBaseVisitor<Double> {
-    public Map<String, Double> vars = new HashMap<>();
+public class EvalVisitor extends CalculatorBaseVisitor<Double> {
+    private Map<String, Double> vars = new HashMap<>();
 
     // stmt : ID '=' expr NEWLINE ;
     @Override
-    public Double visitAssign(CalcParser.AssignContext ctx) {
+    public Double visitAssign(CalculatorParser.AssignContext ctx) {
         String id = ctx.ID().getText();
         Double val = visit(ctx.expr());
         vars.put(id, val);
@@ -385,7 +409,7 @@ public class EvalVisitor extends CalcBaseVisitor<Double> {
 
     // stmt : expr NEWLINE ;
     @Override
-    public Double visitPrintExpr(CalcParser.PrintExprContext ctx) {
+    public Double visitPrintExpr(CalculatorParser.PrintExprContext ctx) {
         Double value = visit(ctx.expr());
         System.out.println(value);
         return .0;
@@ -393,13 +417,13 @@ public class EvalVisitor extends CalcBaseVisitor<Double> {
 
     // expr : INT ;
     @Override
-    public Double visitLiteral(CalcParser.LiteralContext ctx) {
-        return Double.valueOf(ctx.NUMBER().getText());
+    public Double visitInt(CalculatorParser.IntContext ctx) {
+        return Double.valueOf(ctx.INT().getText());
     }
 
     // expr : ID ;
     @Override
-    public Double visitId(CalcParser.IdContext ctx) {
+    public Double visitId(CalculatorParser.IdContext ctx) {
         String id = ctx.ID().getText();
         if (vars.containsKey(id)) return vars.get(id);
         return .0;
@@ -407,25 +431,25 @@ public class EvalVisitor extends CalcBaseVisitor<Double> {
 
     // expr : expr op=('*'|'/') expr ;
     @Override
-    public Double visitMulDiv(CalcParser.MulDivContext ctx) {
+    public Double visitMulDiv(CalculatorParser.MulDivContext ctx) {
         double lhs = visit(ctx.expr(0));
         double rhs = visit(ctx.expr(1));
-        if (ctx.op.getType() == CalcParser.MUL) return lhs * rhs;
+        if (ctx.op.getType() == CalculatorParser.MUL) return lhs * rhs;
         return lhs / rhs;
     }
 
     // expr : expr op=('+'|'-') expr ;
     @Override
-    public Double visitAddSub(CalcParser.AddSubContext ctx) {
+    public Double visitAddSub(CalculatorParser.AddSubContext ctx) {
         double lhs = visit(ctx.expr(0));
         double rhs = visit(ctx.expr(1));
-        if (ctx.op.getType() == CalcParser.ADD) return lhs + rhs;
+        if (ctx.op.getType() == CalculatorParser.ADD) return lhs + rhs;
         return lhs - rhs;
     }
 
     // expr : '(' expr ')' ;
     @Override
-    public Double visitParen(CalcParser.ParenContext ctx) {
+    public Double visitParens(CalculatorParser.ParensContext ctx) {
         return visit(ctx.expr());
     }
 }
@@ -443,35 +467,37 @@ public class EvalVisitor extends CalcBaseVisitor<Double> {
 ANTLR 4 会为产生式生成
 
 ```java
-public void enter<Label>(CalcParser.<Label>Context ctx);
-public void exit<Label>(CalcParser.<Label>Context ctx);
+public void enter<Label>(CalculatorParser.<Label>Context ctx);
+public void exit<Label>(CalculatorParser.<Label>Context ctx);
 ```
 
 这样的事件，类似 Visitor 模式按需填空即可。
 
-### 传递参数与返回值
+**传递参数与返回值**
 
 细心的读者应该注意到了，ANTLR 4 生成的 Visitor 模式中返回类型是统一的，而 Listener 模式直接就是 `void` ，并且两个模式都没有提供传入参数的地方。那么如果想要手动操纵返回值和参数怎么办呢？
 
 ANTLR 4 Runtime 提供了一个 `ParseTreeProperty` ，其实大致就是个 `IdentityHashMap`。你可以把 Context 当作 key 把相关的东西丢进去。
 
-### Listener 例子
+**Listener模式**
 
 还是前面的计算器，演示下 Listener 模式以及 `ParseTreeProperty` 的用法。
 
 ```java
+package com.zhenglinj.antlr4example.calculator;
+
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Evaluator extends CalcBaseListener {
-    public Map<String, Double> vars = new HashMap<>();
-    public ParseTreeProperty<Double> values = new ParseTreeProperty<>();
+public class Evaluator extends CalculatorBaseListener {
+    private Map<String, Double> vars = new HashMap<>();
+    private ParseTreeProperty<Double> values = new ParseTreeProperty<>();
 
     // stmt : ID '=' expr NEWLINE ;
     @Override
-    public void exitAssign(CalcParser.AssignContext ctx) {
+    public void exitAssign(CalculatorParser.AssignContext ctx) {
         String id = ctx.ID().getText();
         Double val = values.get(ctx.expr());
         vars.put(id, val);
@@ -479,41 +505,41 @@ public class Evaluator extends CalcBaseListener {
 
     // stmt : expr NEWLINE ;
     @Override
-    public void exitPrintExpr(CalcParser.PrintExprContext ctx) {
+    public void exitPrintExpr(CalculatorParser.PrintExprContext ctx) {
         System.out.println(values.get(ctx.expr()));
     }
 
     // expr : NUMBER ;
     @Override
-    public void exitLiteral(CalcParser.LiteralContext ctx) {
-        values.put(ctx, Double.valueOf(ctx.NUMBER().getText()));
+    public void exitInt(CalculatorParser.IntContext ctx) {
+        values.put(ctx, Double.valueOf(ctx.INT().getText()));
     }
 
     // expr : ID ;
     @Override
-    public void exitId(CalcParser.IdContext ctx) {
-        values.put(ctx, vars.containsKey(ctx.ID().getText()) ? vars.get(ctx.ID().getText()) : .0);
+    public void exitId(CalculatorParser.IdContext ctx) {
+        values.put(ctx, vars.getOrDefault(ctx.ID().getText(), .0));
     }
 
     // expr : expr op=('*'|'/') expr ;
     @Override
-    public void exitMulDiv(CalcParser.MulDivContext ctx) {
+    public void exitMulDiv(CalculatorParser.MulDivContext ctx) {
         double lhs = values.get(ctx.expr(0));
         double rhs = values.get(ctx.expr(1));
-        values.put(ctx, ctx.op.getType() == CalcParser.MUL ? lhs * rhs : lhs / rhs);
+        values.put(ctx, ctx.op.getType() == CalculatorParser.MUL ? lhs * rhs : lhs / rhs);
     }
 
     // expr : expr op=('+'|'-') expr ;
     @Override
-    public void exitAddSub(CalcParser.AddSubContext ctx) {
+    public void exitAddSub(CalculatorParser.AddSubContext ctx) {
         double lhs = values.get(ctx.expr(0));
         double rhs = values.get(ctx.expr(1));
-        values.put(ctx, ctx.op.getType() == CalcParser.ADD ? lhs + rhs : lhs - rhs);
+        values.put(ctx, ctx.op.getType() == CalculatorParser.ADD ? lhs + rhs : lhs - rhs);
     }
 
     // expr : '(' expr ')' ;
     @Override
-    public void exitParen(CalcParser.ParenContext ctx) {
+    public void exitParens(CalculatorParser.ParensContext ctx) {
         values.put(ctx, values.get(ctx.expr()));
     }
 }
@@ -523,9 +549,9 @@ public class Evaluator extends CalcBaseListener {
 
 在 Visitor 模式中，树的遍历是需要我们自己手动控制的。这个有好处也有坏处。当你要实现一个树上的解释器的时候，用 Visitor 就很方便，比如你可以只执行 `if-else` 块中的一个，比如你可以重复执行循环语句的主体部分。当然坏处就是万一意外忘记遍历或者重复遍历就麻烦了。
 
-在 Listener 模式中， walker 自顾自地走着，按顺序恰好遍历每个节点一次，进入或者退出一个节点的时候调用你的 Listener。因此，如果要实现一个树上解释器的话， Listener 模式就非常蛋疼了。但是，如果想要构建一个 AST ，这种自动帮你一遍的事情就很舒服了。再比如要支持函数的后向调用，可以在第一次遍历中先把所有的函数名称找出来，然后再在第二遍遍历中做类型检查等等。
+在 Listener 模式中， walker 自顾自地走着，按顺序恰好遍历每个节点一次，进入或者退出一个节点的时候调用你的 Listener。因此，如果要实现一个树上解释器的话， Listener 模式就非常麻烦了。但是，如果想要构建一个 AST ，这种自动帮你一遍的事情就很舒服了。再比如要支持函数的后向调用，可以在第一次遍历中先把所有的函数名称找出来，然后再在第二遍遍历中做类型检查等等。
 
-
+[完整代码](https://github.com/zhenglinj/antlr4example)
 
 ## ANTLR4 testsuite
 
