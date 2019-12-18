@@ -563,6 +563,13 @@ ACE.js是流行的前端页面编辑器，由JavaScript实现。可以结合ANTL
 
 [ace-javascript-target](https://github.com/antlr/antlr4/blob/master/doc/ace-javascript-target.md)  
 
+## IntelliJ IDEA 插件支持
+
+IntelliJ IDEA提供了 ANTLR 的插件用于调试语法文件*.g4。以Calculator中`stmt`这条Rule为例，右击该Rule选择"test Rule"，输入测试文本，即可出现下图所示解析树等信息：
+
+![idea-plugin-antlr-preview](/images/idea-plugin-antlr-preview.png)
+
+
 ## 参考
 
 - https://abcdabcd987.com/notes-on-antlr4/
